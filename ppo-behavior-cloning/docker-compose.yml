@@ -1,0 +1,14 @@
+version: '3'
+services:
+  ppo-training:
+    build:
+      context: .
+    volumes:
+      - ./runs:/app/runs
+      - ./models:/app/models
+      - ./videos:/app/videos
+      - ./wandb:/app/wandb
+    tty: true
+    stdin_open: true 
+    command: >
+      ${ARGS}
