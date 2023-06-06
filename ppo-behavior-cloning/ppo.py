@@ -48,7 +48,7 @@ def parse_args():
         help="the learning rate of the optimizer")
     parser.add_argument("--seed", type=int, default=1,
         help="seed of the experiment")
-    parser.add_argument("--total-timesteps", type=int, default=2000000,
+    parser.add_argument("--total-timesteps", type=int, default=2000,
         help="total timesteps of the experiments")
     parser.add_argument("--torch-deterministic", type=lambda x: bool(strtobool(x)), default=True, nargs="?", const=True,
         help="if toggled, `torch.backends.cudnn.deterministic=False`")
@@ -370,5 +370,5 @@ if __name__ == "__main__":
     
     envs.close()
     writer.close()
-    torch.save(agent.state_dict(), 'models/{run_name}.pth')
+    torch.save(agent.state_dict(), f'models/{run_name}.pth')
     xvfb_process.terminate()
