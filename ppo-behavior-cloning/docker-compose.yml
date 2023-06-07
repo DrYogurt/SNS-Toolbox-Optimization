@@ -10,5 +10,4 @@ services:
       - ./wandb:/app/wandb
     tty: true
     stdin_open: true 
-    command: >
-      ${ARGS}
+    command: ${ARGS}
