@@ -6,22 +6,24 @@ metric:
   name: validation_loss
   goal: minimize
 parameters:
-  learning_rate:
+  learning-rate:
     min: 0.0001
     max: 0.005
   seed:
     values: [3]
-  total_timesteps:
+  total-timesteps:
     values: [1000000]
-  capture_video:
+  capture-video:
     values: [True]
-  num_envs:
+  track:
+    values: [True]
+  num-envs:
     values: [4]
-  num_steps:
+  num-steps:
     values: [2048, 4096, 8192]
   gamma:
     min: 0.9
     max: 1.0
-  gae_lambda:
+  gae-lambda:
     min: 0.9
     max: 1.0
