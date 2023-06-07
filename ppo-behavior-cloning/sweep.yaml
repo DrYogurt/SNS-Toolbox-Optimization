@@ -13,10 +13,8 @@ parameters:
     values: [3]
   total-timesteps:
     values: [1000000]
-  capture-video:
-    values: [True]
-  track:
-    values: [True]
+  capture-video: {}
+  track: {}
   num-envs:
     values: [4]
   num-steps:
