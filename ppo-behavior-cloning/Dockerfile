@@ -17,4 +17,4 @@ RUN apt install xvfb libgl1-mesa-glx -y
 COPY . /app
 
 # Set the entry point and pass the command line arguments to the script
-ENTRYPOINT ["wandb", "agent"]
+ENTRYPOINT ["python", "ppo.py"]
