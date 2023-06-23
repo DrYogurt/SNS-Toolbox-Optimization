@@ -12,9 +12,11 @@ import torch.optim as optim
 from torch.distributions.categorical import Categorical
 from torch.utils.tensorboard import SummaryWriter
 
-from sns_utils import SNSCell, Agent
+import gym_cartpole_continuous
 
+from sns_utils import SNSCell, Continuous_Agent
 
+print(os.path.dirname(os.path.realpath(__file__)))
 class Actor(nn.Module):
     def __init__(self, inp_size,hid_size,out_size):
         super(Actor, self).__init__()
@@ -55,11 +57,11 @@ def train_with_teacher_forcing(model, teacher, env, optimizer, criterion, max_ep
                 
 
                 # Convert the output into a probability distribution
-                probs = torch.softmax(output, dim=-1)
+                #probs = torch.softmax(output, dim=-1)
                 
                 # Choose the action with the highest probability
-                action = probs.squeeze().argmax().item()
-
+                #action = probs.squeeze().argmax().item()
+                #action = output
                 # Use the feed_forward model to get the action from the observation
                 feed_forward_action = teacher(next_obs)
                 
@@ -68,14 +70,15 @@ def train_with_teacher_forcing(model, teacher, env, optimizer, criterion, max_ep
                 action = feed_forward_action
                 
                 # Perform the action
-                next_obs, _, done, term , _ = env.step(action.cpu().numpy())
+                next_obs, _, done, term , _ = env.step(action.detach().numpy())
                 
                 # save the observation for next time
                 next_obs = torch.tensor(next_obs, dtype=torch.float32)
 
 
                 # Perform a backward pass and update the model
-                loss = criterion(output.squeeze(), action.clone().detach())
+                sqzd = output[0]
+                loss = criterion(sqzd, action.clone().detach())
                 optimizer.zero_grad()
                 loss.backward()
                 losses.append(loss.item())
@@ -88,27 +91,32 @@ def train_with_teacher_forcing(model, teacher, env, optimizer, criterion, max_ep
             
 if __name__ == "__main__":            
     # Initialize the environment
-    env = gym.make('CartPole-v1')
+    env = gym.make('CartPoleContinuous-v1')
+    env = gym.wrappers.ClipAction(env)
+    env = gym.wrappers.NormalizeObservation(env)
+    env = gym.wrappers.TransformObservation(env, lambda obs: np.clip(obs, -10, 10))
+    env = gym.wrappers.NormalizeReward(env)
+    env = gym.wrappers.TransformReward(env, lambda reward: np.clip(reward, -10, 10))
 
     # Set the random seed for reproducibility
     torch.manual_seed(0)
 
     # Set the hyperparameters
     input_size = env.observation_space.shape[0]
-    hidden_size = 2
-    output_size = env.action_space.n
-    learning_rate = 0.001
-    max_episodes = 100
+    hidden_size = 1
+    output_size = env.action_space.shape[0]
+    learning_rate = 0.01
+    max_episodes = 1000
 
     # Create an instance of both models
     model = Actor(input_size, hidden_size, output_size)
 
-    teacher = Agent(env,hidden_size=8)
-    teacher.load_state_dict(torch.load("cloned_sns/CartPole-v1_ppo_100_1685605595.pth"))
+    teacher = Continuous_Agent(env,hidden_size=53)
+    teacher.load_state_dict(torch.load("SNS-Toolbox-Optimization/cloned_cartpole/CartPoleContinuous-v1_ppo_451_1686600317.pth"))
     teacher.eval()
 
     # Define the loss function and optimizer
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Set up tensorboard

@@ -3,6 +3,8 @@ import torch.nn as nn
 from torch.nn import Parameter
 import numpy as np
 from torch.distributions.categorical import Categorical
+from torch.distributions.normal import Normal
+
 
 
 
@@ -116,3 +118,45 @@ class Agent(nn.Module):
             action = probs.sample()
         return action, probs.log_prob(action), probs.entropy(), self.critic(x)
 
+class Continuous_Agent(nn.Module):
+    def __init__(self, env, hidden_size = 64):
+        super(Continuous_Agent, self).__init__()
+        self.critic = nn.Sequential(
+            layer_init(nn.Linear(np.array(env.observation_space.shape).prod(), 64)),
+            nn.Tanh(),
+            layer_init(nn.Linear(64, 64)),
+            nn.Tanh(),
+            layer_init(nn.Linear(64, 1), std=1.0),
+        )
+        self.actor_mean = nn.Sequential(
+            layer_init(nn.Linear(np.array(env.observation_space.shape).prod(), hidden_size)),
+            nn.Tanh(),
+            layer_init(nn.Linear(hidden_size, hidden_size)),
+            nn.Tanh(),
+            layer_init(nn.Linear(hidden_size, np.prod(env.action_space.shape)), std=0.01),
+        )
+        self.actor_logstd = nn.Parameter(torch.zeros(1, np.prod(env.action_space.shape)))
+
+    def get_value(self, x):
+        return self.critic(x)
+
+    def get_action_and_value(self, x, action=None):
+        action_mean = self.actor_mean(x)
+        action_logstd = self.actor_logstd.expand_as(action_mean)
+        action_std = torch.exp(action_logstd)
+        probs = Normal(action_mean, action_std)
+        if action is None:
+            action = probs.sample()
+        return action, probs.log_prob(action).sum(1), probs.entropy().sum(1), self.critic(x)
+    
+    def forward(self, x, train=False):
+        
+        if train:
+            action_mean = self.actor_mean(x)
+            action_logstd = self.actor_logstd.expand_as(action_mean)
+            action_std = torch.exp(action_logstd)
+            probs = Normal(action_mean, action_std)
+            if action is None:
+                action = probs.sample()
+            return action         
+        return self.actor_mean(x)

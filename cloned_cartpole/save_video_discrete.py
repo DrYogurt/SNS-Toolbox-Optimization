@@ -1,23 +1,24 @@
 import torch
 import gymnasium as gym
 from clone import Actor
-
+import numpy as np
+num = 1
 # Create a random environment
 env = gym.make('CartPole-v1',render_mode='rgb_array')
 # Wrap the environment with the Monitor to record a video
-env = gym.wrappers.RecordVideo(env, './video/sns_trained',episode_trigger=lambda t:True)
+env = gym.wrappers.RecordVideo(env, f'./video/sns__trained_{num}',episode_trigger=lambda t:True)
+
 
 # Load your trained model
 input_size = env.observation_space.shape[0]
-hidden_size = 2
+hidden_size = 1
 output_size = env.action_space.n
 model = Actor(input_size,hidden_size,output_size)
-model.load_state_dict(torch.load('sns_trained.pth'))
+model.load_state_dict(torch.load(f'sns_trained-discrete.pth'))
 model.eval()
 
 
 # Set the random seed for reproducibility
-torch.manual_seed(0)
 
 # Set the maximum number of steps for the episode
 max_steps = 500
