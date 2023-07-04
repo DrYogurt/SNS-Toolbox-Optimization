@@ -86,7 +86,7 @@ def train_with_teacher_forcing(model, teacher, env, optimizer, criterion, max_ep
                 pbar.update(1)
         
 
-        if (episode + 1) % 2 == 0:
+        if (episode + 1) % 10 == 0:
             print(f"Episode: {episode+1}, Loss: {loss.item()}")
             
 if __name__ == "__main__":            
@@ -103,16 +103,16 @@ if __name__ == "__main__":
 
     # Set the hyperparameters
     input_size = env.observation_space.shape[0]
-    hidden_size = 1
+    hidden_size = 2
     output_size = env.action_space.shape[0]
     learning_rate = 0.01
-    max_episodes = 1000
+    max_episodes = 50
 
     # Create an instance of both models
     model = Actor(input_size, hidden_size, output_size)
 
-    teacher = Continuous_Agent(env,hidden_size=53)
-    teacher.load_state_dict(torch.load("SNS-Toolbox-Optimization/cloned_cartpole/CartPoleContinuous-v1_ppo_451_1686600317.pth"))
+    teacher = Continuous_Agent(env,hidden_size=64)
+    teacher.load_state_dict(torch.load("SNS-Toolbox-Optimization/cloned_cartpole/CartPoleContinuous-v1_ppo_540_1688296562.pth"))
     teacher.eval()
 
     # Define the loss function and optimizer
@@ -125,4 +125,4 @@ if __name__ == "__main__":
     # Train the model using teacher forcing
     train_with_teacher_forcing(model, teacher, env, optimizer, criterion, max_episodes,losses = losses)
     env.close()
-    torch.save(model.state_dict(), f'sns_trained.pth')
+    torch.save(model.state_dict(), f'SNS-Toolbox-Optimization/cloned_cartpole/sns_trained.pth')

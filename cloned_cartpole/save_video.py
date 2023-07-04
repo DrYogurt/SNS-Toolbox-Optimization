@@ -6,7 +6,7 @@ import numpy as np
 # Create a random environment
 env = gym.make('CartPoleContinuous-v1',render_mode='rgb_array')
 # Wrap the environment with the Monitor to record a video
-env = gym.wrappers.RecordVideo(env, './video/sns_cont_trained',episode_trigger=lambda t:True)
+env = gym.wrappers.RecordVideo(env, './SNS-Toolbox-Optimization/cloned_cartpole/video/sns_cont_trained_3',episode_trigger=lambda t:True)
 env = gym.wrappers.ClipAction(env)
 env = gym.wrappers.NormalizeObservation(env)
 env = gym.wrappers.TransformObservation(env, lambda obs: np.clip(obs, -10, 10))
@@ -15,10 +15,10 @@ env = gym.wrappers.TransformReward(env, lambda reward: np.clip(reward, -10, 10))
 
 # Load your trained model
 input_size = env.observation_space.shape[0]
-hidden_size = 1
+hidden_size = 2
 output_size = env.action_space.shape[0]
 model = Actor(input_size,hidden_size,output_size)
-model.load_state_dict(torch.load('sns_trained.pth'))
+model.load_state_dict(torch.load('SNS-Toolbox-Optimization/cloned_cartpole/sns_trained.pth'))
 model.eval()
 
 

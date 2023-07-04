@@ -133,6 +133,8 @@ class Continuous_Agent(nn.Module):
             nn.Tanh(),
             layer_init(nn.Linear(hidden_size, hidden_size)),
             nn.Tanh(),
+            layer_init(nn.Linear(hidden_size, hidden_size)),
+            nn.Tanh(),
             layer_init(nn.Linear(hidden_size, np.prod(env.action_space.shape)), std=0.01),
         )
         self.actor_logstd = nn.Parameter(torch.zeros(1, np.prod(env.action_space.shape)))
