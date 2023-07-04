@@ -4,11 +4,11 @@ from subprocess import call
 # Initialize wandb with your project name and entity name
 wandb.login()
 
-config = {
+sweep_config = {
     'method': 'grid',
     'metric': {
       'name': 'value_loss',
-      'goal': 'maximize'   
+      'goal': 'minimize'   
     },
     'parameters': {
         'learning_rate': {
@@ -47,12 +47,18 @@ config = {
     }
 }
 
-sweep_id = wandb.sweep(config, project="behavior-cloning-feed-forward-models")
+sweep_id = wandb.sweep(sweep_config, project="behavior-cloning-feed-forward-models")
 
 def train():
+    config_defaults = {
+        # Default parameters remain unchanged...
+    }
+    wandb.init(config=config_defaults)
+    
+    config = wandb.config
     # Call your training script here
     # This is just an example. Modify this according to your script name and args
-     cmd = [
+    cmd = [
         "python", "ppo.py",
         "--learning_rate", str(config.learning_rate),
         #"--seed", str(config.seed),
@@ -77,5 +83,6 @@ def train():
         "--max_grad_norm", str(config.max_grad_norm),
         "--hidden_size", str(config.hidden_size),
     ]
+    subprocess.call(cmd)
 
 wandb.agent(sweep_id, function=train)

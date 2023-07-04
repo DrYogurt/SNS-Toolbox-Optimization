@@ -368,6 +368,12 @@ if __name__ == "__main__":
         print("SPS:", int(global_step / (time.time() - start_time)))
         writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
         writer.add_scalar("charts/reward", rewards.sum(), global_step)
+        if args.track:
+            wandb.log({"reward": rewards.sum(),
+                       "SPS": int(global_step / (time.time() - start_time)),
+                       "value_loss": v_loss.item()})
+        
+    
         
     
     envs.close()
