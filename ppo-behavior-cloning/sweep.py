@@ -1,5 +1,6 @@
 import wandb
-from subprocess import call
+import os
+import subprocess
 
 # Initialize wandb with your project name and entity name
 wandb.login()
@@ -70,7 +71,7 @@ def train():
         "--num_envs", str(config.num_envs),
         "--num_steps", str(config.num_steps),
         #"--anneal_lr", str(config.anneal_lr),
-        "--gae", str(config.gae),
+        #"--gae", str(config.gae),
         "--gamma", str(config.gamma),
         "--gae_lambda", str(config.gae_lambda),
         "--num_minibatches", str(config.num_minibatches),
