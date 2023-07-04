@@ -111,7 +111,7 @@ def make_env(gym_id, seed, idx, capture_video, run_name):
         env = gym.wrappers.RecordEpisodeStatistics(env)
         if capture_video:
             if idx == 0:
-                env = gym.wrappers.RecordVideo(env, f"videos/{run_name}",episode_trigger=lambda t: t%100==0)
+                env = gym.wrappers.RecordVideo(env, f"videos/{run_name}",episode_trigger=lambda t: t%50==0)
         env = gym.wrappers.ClipAction(env)
         env = gym.wrappers.NormalizeObservation(env)
         env = gym.wrappers.TransformObservation(env, lambda obs: np.clip(obs, -10, 10))
@@ -144,6 +144,8 @@ class Agent(nn.Module):
         )
         self.actor_mean = nn.Sequential(
             layer_init(nn.Linear(np.array(envs.single_observation_space.shape).prod(), args.hidden_size)),
+            nn.Tanh(),
+            layer_init(nn.Linear(args.hidden_size, args.hidden_size)),
             nn.Tanh(),
             layer_init(nn.Linear(args.hidden_size, args.hidden_size)),
             nn.Tanh(),
